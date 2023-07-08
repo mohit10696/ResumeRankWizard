@@ -17,12 +17,18 @@ Resources:
       Handler: app.lambdaHandler
       Runtime: nodejs16.x
       Role: !GetAtt MyLambdaRole.Arn
+      Events:
+        FileUploadApiEvent:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: POST
 
   MyLambdaRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: MyLambdaRole
-      AssumeRolePolicyDocument:
+      AssumeRolePolicyDocument: 
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
@@ -39,6 +45,17 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                 Resource: arn:aws:s3:::resume-classifier/*
+        - PolicyName: CloudWatchLogsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:log-group:/aws/lambda/*
+
 
   ApiGatewayApi:
     Type: 'AWS::Serverless::Api'

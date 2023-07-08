@@ -1,20 +1,23 @@
 {
-  "name": "hello_world",
+  "name": "file-upload",
   "version": "1.0.0",
   "description": "hello world sample for NodeJS",
   "main": "app.js",
   "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
   "author": "SAM CLI",
   "license": "MIT",
-  "dependencies": {
-    "axios": ">=0.21.1",
-    "pdf-parse": "1.1.1"
-  },
   "scripts": {
     "test": "mocha tests/unit/"
   },
-  "devDependencies": {
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.367.0",
+    "aws-lambda-multipart-parser": "^0.1.3",
     "chai": "^4.2.0",
-    "mocha": "^9.1.4"
+    "lambda-multipart-parser": "^1.0.1",
+    "mocha": "^9.1.4",
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^3.0.1",
+    "multipart": "^0.1.5",
+    "parse-multipart": "^1.0.4"
   }
 }
