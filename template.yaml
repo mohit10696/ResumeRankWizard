@@ -17,12 +17,38 @@ Resources:
       Handler: app.lambdaHandler
       Runtime: nodejs16.x
       Role: !GetAtt MyLambdaRole.Arn
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ResumeQueue
       Events:
         FileUploadApiEvent:
           Type: Api
           Properties:
             Path: /upload
             Method: POST
+  
+  ResumeQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ResumeQueue
+      VisibilityTimeout: 300
+      MaximumMessageSize: 1024
+  
+  PdfProccesorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: pdf-processor-function/
+      Handler: app.lambdaHandler
+      Runtime: nodejs16.x
+      Role: !GetAtt MyLambdaRole.Arn
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ResumeQueue
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ResumeQueue.Arn
 
   MyLambdaRole:
     Type: AWS::IAM::Role
@@ -45,6 +71,17 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                 Resource: arn:aws:s3:::resume-classifier/*
+        - PolicyName: SQSAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: arn:aws:sqs:*:*:ResumeQueue
         - PolicyName: CloudWatchLogsPolicy
           PolicyDocument:
             Version: '2012-10-17'
