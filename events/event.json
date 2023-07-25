@@ -3,7 +3,7 @@
     {
       "messageId": "e9196ab3-c90e-4abe-8eeb-74d27aefa902",
       "receiptHandle": "AQEBIXYAqhR6MAbJ1qustgFb/bgzz+yMAw+jnEtOEh4+eKFYbDDgpvtl5GdGeUMR0YfdCmj/Uv8It3jm+Z94FPBzJcvFjG5jf1QxAtXYEnJ8kpDo+nRy9QbDUAsrzUPz/lR2q/PeS5J2dhG5wuE0sSnT6wg6gI91FNIQa4oiBI4Ol4rzwqZTj6hcT+w5CkG1OiS11pzSzbEZoA4MCnVh2OWJge2yllki4DAqB/RQ/O0H2XJujRF9DwhCJ4ZJdigrekoyc/+APHghvSLgGOr9kLMaNJt16Mx885tm5myE+JEWPq9tocdkPnTMXyJ8WYtl3JeEPeu508dM3SJFv7Ef0toi6FkbnJ2I2nPDYW6WYES7po7N/m2Lw0jkj6MoxPzwvbcHuFedD9zN6R/rhu+eSWFa+w==",
-      "body": "{\"bucketName\":\"resume-classifier\",\"objectKey\":\"Mohit_Sojitra_Resume.pdf\",\"objectUrl\":\"https://resume-classifier.s3.amazonaws.com/dummy.pdf\"}",
+      "body": "{\"bucketName\":\"resume-classifier\",\"objectKey\":\"Mohit_Sojitra_Resume.jpg\",\"objectUrl\":\"https://resume-classifier.s3.amazonaws.com/dummy.pdf\"}",
       "messageAttributes": {},
       "md5OfBody": "d8052f9e09a17e6907629e76bbd261cc",
       "eventSource": "aws:sqs",

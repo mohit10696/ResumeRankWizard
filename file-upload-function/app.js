@@ -30,6 +30,9 @@ exports.lambdaHandler = async (event) => {
     statusCode: 200,
     body: JSON.stringify({
       files: file.filename,
+      bucketName: BUCKET,
+      objectKey: file.filename,
+      objectUrl,
     }),
   };
 };

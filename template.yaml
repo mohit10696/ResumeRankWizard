@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
+
 Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
@@ -26,12 +27,27 @@ Resources:
           Properties:
             Path: /upload
             Method: POST
+            
+  
+  getDynamoDBData:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get-dynamoDbData-function/
+      Handler: app.lambdaHandler
+      Runtime: nodejs16.x
+      Role: !GetAtt MyLambdaRole.Arn
+      Events:
+        FileUploadApiEvent:
+          Type: Api
+          Properties:
+            Path: /getDynamoDBData
+            Method: GET
   
   ResumeQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: ResumeQueue
-      VisibilityTimeout: 300
+      VisibilityTimeout: 900
       MaximumMessageSize: 1024
   
   PdfProccesorFunction:
@@ -41,6 +57,7 @@ Resources:
       Handler: app.lambdaHandler
       Runtime: nodejs16.x
       Role: !GetAtt MyLambdaRole.Arn
+      Timeout: 899
       Environment:
         Variables:
           SQS_QUEUE_URL: !Ref ResumeQueue
@@ -49,6 +66,43 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt ResumeQueue.Arn
+  
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SkillScores
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0de0dd4aba99b4a81
+      InstanceType: t2.micro        # Replace this with your desired instance type
+      KeyName: cloud-a3         # Replace this with the name of your EC2 key pair
+      SecurityGroups:
+        - !Ref MySecurityGroup     # Replace this with the name of your EC2 security group
+
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access via port 80 and SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: '0.0.0.0/0'
 
   MyLambdaRole:
     Type: AWS::IAM::Role
@@ -92,37 +146,20 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:log-group:/aws/lambda/*
+        - PolicyName: DynamoDBAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource: !GetAtt DynamoDBTable.Arn
+        - PolicyName: TextractAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - textract:DetectDocumentText
+                Resource: '*'
 
-
-  ApiGatewayApi:
-    Type: 'AWS::Serverless::Api'
-    Properties:
-      StageName: prod
-      DefinitionBody:
-        swagger: '2.0'
-        info:
-          title: File Upload API
-        paths:
-          /upload:
-            post:
-              consumes:
-                - multipart/form-data
-              produces:
-                - application/json
-              parameters:
-                - in: formData
-                  name: file
-                  type: file
-                  required: true
-              responses:
-                '200':
-                  description: File upload successful
-                  schema:
-                    type: object
-              x-amazon-apigateway-integration:
-                type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FileUploadFunction.Arn}/invocations
-                httpMethod: POST
-                responses:
-                  default:
-                    statusCode: '200'
